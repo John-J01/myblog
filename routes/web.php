@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Auth::routes();
-Route::get('/home_admin','HomeController@index')->name('home');
+Route::get('/home_admin','HomeController@index')->name('home_admin');
 Route::get('/login_admin','MainController@login_admin')->name('login_admin');
 /* manage admin */
 Route::group(['prefix' => 'admin','middleware' => 'rule:admin'], function () {
@@ -40,7 +40,7 @@ Route::group(['prefix' => 'admin','middleware' => 'rule:admin'], function () {
 });
 /* show all main */
 Route::group(['prefix' => ''], function () {
-    Route::get('','MainController@view_home')->name('home');
+    Route::get('','MainController@view_home')->name('index');
     Route::get('home','MainController@view_home')->name('home');
     Route::get('about','MainController@view_about')->name('about');
     Route::get('experience','MainController@view_experience')->name('experience');
@@ -71,12 +71,8 @@ Route::get('/login-google', 'SocialController@googleRedirect')->name('login_goog
 Route::get('/google_callback', 'SocialController@loginWithGoogle');
 
 
-Route::get('/migrate', function() {
-    $exitCode = Artisan::call('db:seed');
-    return 'DONE'; //Return anything
-});
-
-Route::get('/clear-cache', function() {
-    $exitCode = Artisan::call('config:cache');
-    return 'DONE'; //Return anything
+/* maintenance, admin only */
+Route::group(['middleware' => 'rule:admin'], function () {
+    Route::get('/migrate', 'MaintenanceController@migrate');
+    Route::get('/clear-cache', 'MaintenanceController@clear_cache');
 });
